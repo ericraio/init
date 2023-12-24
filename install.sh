@@ -51,6 +51,39 @@ if is_mac; then
 	rm -rf ~/.ansible
 fi
 
+# Generate SSH Key and Deploy to Github
+
+echo "Please add your github token with admin:public_key"
+read -r github_token
+TOKEN=$github_token
+
+ssh-keygen -q -b 4096 -t rsa -N "" -f ~/.ssh/github_rsa
+
+PUBKEY=`cat ~/.ssh/github_rsa.pub`
+TITLE=`hostname`
+
+RESPONSE=`curl -s -H "Authorization: token ${TOKEN}" \
+  -X POST --data-binary "{\"title\":\"${TITLE}\",\"key\":\"${PUBKEY}\"}" \
+  https://api.github.com/user/keys`
+
+KEYID=`echo $RESPONSE \
+  | grep -o '\"id.*' \
+  | grep -o "[0-9]*" \
+  | grep -m 1 "[0-9]*"`
+
+echo "Public key deployed to remote service"
+
+# Add SSH Key to the local ssh-agent"
+
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/github_rsa
+
+echo "Added SSH key to the ssh-agent"
+
+# Test the SSH connection
+
+ssh -T git@github.com
+
 echo "==========================================="
 echo "Setting up your mac"
 echo "==========================================="
