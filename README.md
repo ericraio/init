@@ -1,4 +1,4 @@
 # Init
 
 
-`curl -sSL https://github.com/ericraio/init/main/install.sh`
+`curl -sSL https://raw.githubusercontent.com/ericraio/init/main/install.sh | bash`
