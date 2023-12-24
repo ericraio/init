@@ -82,10 +82,16 @@ echo "Added SSH key to the ssh-agent"
 
 # Test the SSH connection
 
-ssh -T git@github.com
+ssh -n -T git@github.com
 
-echo "==========================================="
-echo "Setting up your mac"
-echo "==========================================="
-
-yadm clone git@github.com:ericraio/dotfiles.git
+# Check the exit status of the SSH command
+if [ $? -eq 0 ]; then
+    echo "==========================================="
+    echo "Setting up your mac"
+    echo "==========================================="
+    
+    # Continue with your remaining commands
+    yadm clone git@github.com:ericraio/dotfiles.git
+else
+    echo "SSH connection failed."
+fi
