@@ -306,17 +306,13 @@ function mac_install {
 
 }
 
-function main {
-	caffeinate_machine
+caffeinate_machine
 
-	setup_github
+setup_github
 
-	if is_mac; then
-		mac_install
-	fi
+if is_mac; then
+	mac_install
+fi
 
-	# Continue with your remaining commands
-	yadm clone git@github.com:ericraio/dotfiles.git
-}
-
-main
+# Continue with your remaining commands
+yadm clone git@github.com:ericraio/dotfiles.git
