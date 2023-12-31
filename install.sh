@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # script to bootstrap setting up a mac with ansible
 
-set -ex
+set -e
 
 export ANSIBLE_HOME=${XDG_CONFIG_HOME:-$HOME/.config}/ansible/
 
@@ -9,16 +9,8 @@ export ANSIBLE_HOME=${XDG_CONFIG_HOME:-$HOME/.config}/ansible/
 # be run from within $HOME (assuming this is the root of your dotfiles)
 cd "$HOME"
 
-function is_mac {
-	if [[ "$OSTYPE" == darwin* ]]; then
-		return 0
-	else
-		return 1
-	fi
-}
-
 is_mac() {
-	if [[ $"OSTYPE" == darwin* ]]; then
+	if [[ "$OSTYPE" == darwin* ]]; then
 		return 0
 	else
 		return 1
@@ -87,67 +79,67 @@ purpleb="\033[1;35m"
 cyan="\033[0;36m"
 cyanb="\033[1;36m"
 
-function black {
+black() {
 	echo -e "${black}${1}${end}"
 }
 
-function blackb {
+blackb() {
 	echo -e "${blackb}${1}${end}"
 }
 
-function white {
+white() {
 	echo -e "${white}${1}${end}"
 }
 
-function whiteb {
+whiteb() {
 	echo -e "${whiteb}${1}${end}"
 }
 
-function red {
+red() {
 	echo -e "${red}${1}${end}"
 }
 
-function redb {
+redb() {
 	echo -e "${redb}${1}${end}"
 }
 
-function green {
+green() {
 	echo -e "${green}${1}${end}"
 }
 
-function greenb {
+greenb() {
 	echo -e "${greenb}${1}${end}"
 }
 
-function yellow {
+yellow() {
 	echo -e "${yellow}${1}${end}"
 }
 
-function yellowb {
+yellowb() {
 	echo -e "${yellowb}${1}${end}"
 }
 
-function blue {
+blue() {
 	echo -e "${blue}${1}${end}"
 }
 
-function blueb {
+blueb() {
 	echo -e "${blueb}${1}${end}"
 }
 
-function purple {
+purple() {
 	echo -e "${purple}${1}${end}"
 }
 
-function purpleb {
+purpleb() {
 	echo -e "${purpleb}${1}${end}"
 }
 
-function cyan {
+cyan() {
 	echo -e "${cyan}${1}${end}"
 }
 
-function cyanb {
+cyanb() {
 	echo -e "${cyanb}${1}${end}"
 }
 
@@ -195,7 +187,7 @@ sober_machine() {
 	fi
 }
 
-function setup_github {
+setup_github() {
 	# Generate SSH Key and Deploy to Github
 	read -p "Please add your github token with admin:public_key" github_token
 	TOKEN=$github_token
@@ -223,7 +215,7 @@ function setup_github {
 	white "Added SSH key to the ssh-agent"
 }
 
-function install_brew_deps {
+install_brew_deps() {
 	white "Downloading homebrew"
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -232,7 +224,7 @@ function install_brew_deps {
 	rm -rf ~/.ansible
 }
 
-function mac_install_basics {
+mac_install_basics() {
 	# Installs basic system settings.
 	read -p "What is this machine's label (Example: \"Eric's Mac Studio\")? " mac_os_label
 	if [[ -z "$mac_os_label" ]]; then
@@ -278,7 +270,7 @@ function mac_install_basics {
 	green "Basic system settings has been changed."
 }
 
-function mac_install {
+mac_install() {
 	mac_install_basics
 	column
 	install_brew_deps
