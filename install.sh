@@ -168,10 +168,10 @@ caffeinate_machine() {
 	pid=$(pgrep -x caffeinate)
 
 	if [[ -n "$pid" ]]; then
-		whiteb "Machine is already caffeinated!"
+		echo "Machine is already caffeinated!"
 	else
 		caffeinate -s -u -d -i -t 3153600000 >/dev/null &
-		whiteb "Machine caffeinated."
+		echo "Machine caffeinated."
 	fi
 }
 
@@ -189,7 +189,7 @@ sober_machine() {
 
 setup_github() {
 	# Generate SSH Key and Deploy to Github
-	read -p "Please add your github token with admin:public_key" github_token
+	read -rp "Please add your github token with admin:public_key" github_token
 	TOKEN=$github_token
 
 	# Add SSH Key to the local ssh-agent"
@@ -226,7 +226,7 @@ install_brew_deps() {
 
 mac_install_basics() {
 	# Installs basic system settings.
-	read -p "What is this machine's label (Example: \"Eric's Mac Studio\")? " mac_os_label
+	read -rp "What is this machine's label (Example: \"Eric's Mac Studio\")? " mac_os_label
 	if [[ -z "$mac_os_label" ]]; then
 		red "ERROR: Invalid MacOS label."
 		exit 1
