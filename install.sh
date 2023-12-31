@@ -58,6 +58,91 @@ is_crostini() {
 	fi
 }
 
+##############################
+# Colors
+##############################
+end="\033[0m"
+black="\033[0;30m"
+blackb="\033[1;30m"
+white="\033[0;37m"
+whiteb="\033[1;37m"
+red="\033[0;31m"
+redb="\033[1;31m"
+green="\033[0;32m"
+greenb="\033[1;32m"
+yellow="\033[0;33m"
+yellowb="\033[1;33m"
+blue="\033[0;34m"
+blueb="\033[1;34m"
+purple="\033[0;35m"
+purpleb="\033[1;35m"
+cyan="\033[0;36m"
+cyanb="\033[1;36m"
+
+black() {
+	echo -e "${black}${1}${end}"
+}
+
+blackb() {
+	echo -e "${blackb}${1}${end}"
+}
+
+white() {
+	echo -e "${white}${1}${end}"
+}
+
+whiteb() {
+	echo -e "${whiteb}${1}${end}"
+}
+
+red() {
+	echo -e "${red}${1}${end}"
+}
+
+redb() {
+	echo -e "${redb}${1}${end}"
+}
+
+green() {
+	echo -e "${green}${1}${end}"
+}
+
+greenb() {
+	echo -e "${greenb}${1}${end}"
+}
+
+yellow() {
+	echo -e "${yellow}${1}${end}"
+}
+
+yellowb() {
+	echo -e "${yellowb}${1}${end}"
+}
+
+blue() {
+	echo -e "${blue}${1}${end}"
+}
+
+blueb() {
+	echo -e "${blueb}${1}${end}"
+}
+
+purple() {
+	echo -e "${purple}${1}${end}"
+}
+
+purpleb() {
+	echo -e "${purpleb}${1}${end}"
+}
+
+cyan() {
+	echo -e "${cyan}${1}${end}"
+}
+
+cyanb() {
+	echo -e "${cyanb}${1}${end}"
+}
+
 # Print
 column() {
 	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
@@ -76,39 +161,16 @@ prompt_install() {
 	return $RETVALUE
 }
 
-##############################
-# Caffeinate machine.
-##############################
-caffeinate_machine() {
-	pid=$(pgrep -x caffeinate)
-
-	if [[ -n "$pid" ]]; then
-		echo "Machine is already caffeinated!"
-	else
-		caffeinate -s -u -d -i -t 3153600000 >/dev/null &
-		echo "Machine caffeinated."
-	fi
-}
-
-# Sober machine.
-sober_machine() {
-	pid=$(pgrep -x caffeinate)
-
-	if [[ -n "$pid" ]]; then
-		killall caffeinate
-		echo "Machine is now sober!"
-	else
-		echo "Machine is already sober!"
-	fi
-}
-
 setup_github() {
-	# Generate SSH Key and Deploy to Github
-	read -rp "Please add your github token with admin:public_key" github_token
-	TOKEN=$github_token
+	if ! prompt_install "Github"; then
+		return
+	fi
+	[ ! -f "$HOME/.ssh/github_rsa.pub" ] && ssh-keygen -q -b 4096 -t rsa -N "" -f ~/.ssh/github_rsa
 
-	# Add SSH Key to the local ssh-agent"
-	ssh-keygen -q -b 4096 -t rsa -N "" -f ~/.ssh/github_rsa
+	# Generate SSH Key and Deploy to Github
+	whiteb "Please add your github token with admin:public_key"
+	read -r github_token
+	TOKEN=$github_token
 
 	PUBKEY=$(cat ~/.ssh/github_rsa.pub)
 	TITLE=$(hostname)
@@ -122,16 +184,16 @@ setup_github() {
 		grep -o "[0-9]*" |
 		grep -m 1 "[0-9]*")
 
-	echo "Public key deployed to remote service"
+	white "Public key deployed to remote service"
 
 	eval "$(ssh-agent -s)"
 	ssh-add ~/.ssh/github_rsa
 
-	echo "Added SSH key to the ssh-agent"
+	white "Added SSH key to the ssh-agent"
 }
 
 install_brew_deps() {
-	echo "Downloading homebrew"
+	white "Downloading homebrew"
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	eval "$(/opt/homebrew/bin/brew shellenv)"
 	brew analytics off
@@ -141,67 +203,70 @@ install_brew_deps() {
 
 mac_install_basics() {
 	# Installs basic system settings.
-	read -rp "What is this machine's label (Example: \"Eric's Mac Studio\")? " mac_os_label
+	read -p "What is this machine's label (Example: \"Eric's Mac Studio\")? " mac_os_label
 	if [[ -z "$mac_os_label" ]]; then
-		echo "ERROR: Invalid MacOS label."
+		red "ERROR: Invalid MacOS label."
 		exit 1
 	fi
 
 	read -p "What is this machine's name (Example: \"Erics-Mac-Studio\")? " mac_os_name
 	if [[ -z "$mac_os_name" ]]; then
-		echo "ERROR: Invalid MacOS name."
+		red "ERROR: Invalid MacOS name."
 		exit 1
 	fi
 
 	read -p "Delete all files in $HOME/Documents (y/n)? " documents
 	if [[ "$documents" == "y" ]]; then
 		rm -rf $HOME/Documents/*
-		echo "Documents deleted."
+		yellow "Documents deleted."
 	fi
 
 	read -p "Delete all files in $HOME/Downloads (y/n)? " downloads
 	if [[ "$downloads" == "y" ]]; then
 		rm -rf $HOME/Downloads/*
-		echo "Downloads deleted."
+		yellow "Downloads deleted."
 	fi
 
 	read -p "Delete all files in $HOME/.Trash (y/n)? " trash
 	if [[ "$trash" == "y" ]]; then
 		osascript -e 'tell app "Finder" to empty'
-		echo "Trash deleted."
+		yellow "Trash deleted."
 	fi
 
 	read -p "Change /usr/local ownership to $USER:staff (y/n)? " ownership
 	if [[ "$ownership" == "y" ]]; then
 		sudo chown -R "$USER":staff /usr/local
-		echo "Ownership changed."
+		yellow "Ownership changed."
 	fi
 
-	echo "Setting system label and name..."
+	yellowb "Setting system label and name..."
 	sudo scutil --set ComputerName $mac_os_label
 	sudo scutil --set HostName $mac_os_name
 	sudo scutil --set LocalHostName $mac_os_name
 	sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string $mac_os_name
-	echo "Basic system settings has been changed."
+	green "Basic system settings has been changed."
 }
 
 mac_install() {
 	mac_install_basics
 	column
+	setup_github
+
+	column
 	install_brew_deps
 
 	column
-	echo "==========================================="
-	echo "Setting up your mac"
-	echo "==========================================="
+	whiteb "==========================================="
+	cyanb "Setting up your mac"
+	whiteb "==========================================="
 
-	echo "Installing Xcode CLI tools...\n"
+	blueb "Installing Xcode CLI tools...\n"
 	xcode-select --install
 
-	echo "💡 CMD+TAB to view and accept Xcode license window."
+	whiteb "💡 CMD+TAB to view and accept Xcode license window."
 	read -p "Have you completed the Xcode CLI tools install (y/n)? " xcode_response
 	if [[ "$xcode_response" != "y" ]]; then
-		echo "ERROR: Xcode CLI tools must be installed before proceeding.\n"
+		redb "ERROR: Xcode CLI tools must be installed before proceeding.\n"
 		exit 1
 	fi
 
@@ -209,13 +274,9 @@ mac_install() {
 		softwareupdate --install-rosetta --agree-to-license
 	fi
 
-	echo "Xcode CLI Tools was installed successfully."
+	greenb "Xcode CLI Tools was installed successfully."
 
 }
-
-caffeinate_machine
-
-setup_github
 
 if is_mac; then
 	mac_install
