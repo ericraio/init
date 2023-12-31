@@ -151,7 +151,7 @@ column() {
 prompt_install() {
 	local RETVALUE=0
 
-	read -rp "Install $1? [y/n]" yn
+	read -rp "Install $1? [y/n] " yn
 
 	case $yn in
 	[Yy]*) RETVALUE=0 ;;
@@ -215,25 +215,25 @@ mac_install_basics() {
 		exit 1
 	fi
 
-	read -p "Delete all files in $HOME/Documents (y/n)? " documents
+	read -p "Delete all files in $HOME/Documents? [y/n] " documents
 	if [[ "$documents" == "y" ]]; then
 		rm -rf $HOME/Documents/*
 		yellow "Documents deleted."
 	fi
 
-	read -p "Delete all files in $HOME/Downloads (y/n)? " downloads
+	read -p "Delete all files in $HOME/Downloads? [y/n] " downloads
 	if [[ "$downloads" == "y" ]]; then
 		rm -rf $HOME/Downloads/*
 		yellow "Downloads deleted."
 	fi
 
-	read -p "Delete all files in $HOME/.Trash (y/n)? " trash
-	if [[ "$trash" == "y" ]]; then
-		osascript -e 'tell app "Finder" to empty'
-		yellow "Trash deleted."
-	fi
+	#read -p "Delete all files in $HOME/.Trash? [y/n] " trash
+	#if [[ "$trash" == "y" ]]; then
+	#	osascript -e 'tell app "Finder" to empty'
+	#	yellow "Trash deleted."
+	#fi
 
-	read -p "Change /usr/local ownership to $USER:staff (y/n)? " ownership
+	read -p "Change /usr/local ownership to $USER:staff? [y/n] " ownership
 	if [[ "$ownership" == "y" ]]; then
 		sudo chown -R "$USER":staff /usr/local
 		yellow "Ownership changed."
@@ -247,24 +247,16 @@ mac_install_basics() {
 	green "Basic system settings has been changed."
 }
 
-mac_install() {
-	mac_install_basics
-	column
-	setup_github
-
-	column
-	install_brew_deps
-
-	column
-	whiteb "==========================================="
-	cyanb "Setting up your mac"
-	whiteb "==========================================="
+install_xcode() {
+	if ! prompt_install "Xcode CLI Tools"; then
+		return
+	fi
 
 	blueb "Installing Xcode CLI tools...\n"
 	xcode-select --install
 
 	whiteb "💡 CMD+TAB to view and accept Xcode license window."
-	read -p "Have you completed the Xcode CLI tools install (y/n)? " xcode_response
+	read -p "Have you completed the Xcode CLI tools install? [y/n] " xcode_response
 	if [[ "$xcode_response" != "y" ]]; then
 		redb "ERROR: Xcode CLI tools must be installed before proceeding.\n"
 		exit 1
@@ -276,6 +268,22 @@ mac_install() {
 
 	greenb "Xcode CLI Tools was installed successfully."
 
+}
+
+mac_install() {
+	whiteb "==========================================="
+	cyanb "Setting up your mac"
+	whiteb "==========================================="
+
+	mac_install_basics
+	column
+	setup_github
+
+	column
+	install_brew_deps
+
+	column
+	install_xcode
 }
 
 if is_mac; then
