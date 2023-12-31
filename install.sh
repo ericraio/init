@@ -240,10 +240,10 @@ mac_install_basics() {
 	fi
 
 	yellowb "Setting system label and name..."
-	sudo scutil --set ComputerName $mac_os_label
-	sudo scutil --set HostName $mac_os_name
-	sudo scutil --set LocalHostName $mac_os_name
-	sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string $mac_os_name
+	sudo scutil --set ComputerName "$mac_os_label"
+	sudo scutil --set HostName "$mac_os_name"
+	sudo scutil --set LocalHostName "$mac_os_name"
+	sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$mac_os_name"
 	green "Basic system settings has been changed."
 }
 
