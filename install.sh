@@ -227,18 +227,6 @@ mac_install_basics() {
 		yellow "Downloads deleted."
 	fi
 
-	#read -p "Delete all files in $HOME/.Trash? [y/n] " trash
-	#if [[ "$trash" == "y" ]]; then
-	#	osascript -e 'tell app "Finder" to empty'
-	#	yellow "Trash deleted."
-	#fi
-
-	read -p "Change /usr/local ownership to $USER:staff? [y/n] " ownership
-	if [[ "$ownership" == "y" ]]; then
-		sudo chown -R "$USER":staff /usr/local
-		yellow "Ownership changed."
-	fi
-
 	yellowb "Setting system label and name..."
 	sudo scutil --set ComputerName "$mac_os_label"
 	sudo scutil --set HostName "$mac_os_name"
