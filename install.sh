@@ -45,7 +45,7 @@ fi
 
 if is_mac; then
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
- 	eval "$(/opt/homebrew/bin/brew shellenv)"
+	eval "$(/opt/homebrew/bin/brew shellenv)"
 	brew analytics off
 	brew install ansible yadm
 	rm -rf ~/.ansible
@@ -59,17 +59,17 @@ TOKEN=$github_token
 
 ssh-keygen -q -b 4096 -t rsa -N "" -f ~/.ssh/github_rsa
 
-PUBKEY=`cat ~/.ssh/github_rsa.pub`
-TITLE=`hostname`
+PUBKEY=$(cat ~/.ssh/github_rsa.pub)
+TITLE=$(hostname)
 
-RESPONSE=`curl -s -H "Authorization: token ${TOKEN}" \
-  -X POST --data-binary "{\"title\":\"${TITLE}\",\"key\":\"${PUBKEY}\"}" \
-  https://api.github.com/user/keys`
+RESPONSE=$(curl -s -H "Authorization: token ${TOKEN}" \
+	-X POST --data-binary "{\"title\":\"${TITLE}\",\"key\":\"${PUBKEY}\"}" \
+	https://api.github.com/user/keys)
 
-KEYID=`echo $RESPONSE \
-  | grep -o '\"id.*' \
-  | grep -o "[0-9]*" \
-  | grep -m 1 "[0-9]*"`
+KEYID=$(echo $RESPONSE |
+	grep -o '\"id.*' |
+	grep -o "[0-9]*" |
+	grep -m 1 "[0-9]*")
 
 echo "Public key deployed to remote service"
 
@@ -93,6 +93,8 @@ echo "Added SSH key to the ssh-agent"
 echo "==========================================="
 echo "Setting up your mac"
 echo "==========================================="
+
+[[ ! -s "~/.ssh/config" ]] && echo "Host github.com\n    IdentityFile ~/.ssh/github_rsa" >~/.ssh/config
 
 # Continue with your remaining commands
 yadm clone git@github.com:ericraio/dotfiles.git
